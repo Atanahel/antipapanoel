@@ -67,13 +67,13 @@ function sprite(options, id) {
         // Draw the animation
         context.drawImage(
                 this.image,
-                frameIndex * this.width / numberOfFrames,
+                frameIndex * this.width,
                 0,
-                this.width / numberOfFrames,
+                this.width,
                 this.height,
-                modulo(offset_x + this.x + this.width / numberOfFrames / 2, world_x) - this.width / numberOfFrames,
+                modulo(offset_x + this.x + this.width / 2, world_x) - this.width,
                 modulo(offset_y + this.y + this.height / 2, world_y) - this.height,
-                this.width / numberOfFrames,
+                this.width,
                 this.height);
     };
 
