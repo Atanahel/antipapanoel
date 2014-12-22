@@ -35,8 +35,13 @@ if (!canvas) {
     // !! LOADING SHIT !!
     // !!!!!!!!!!!!!!!!!!
 
-    var papanoel = new Image();
-    papanoel.src = 'img/papanoel_big_test.png';
+    var papanoelImg = new Image();
+    papanoelImg.src = 'img/papanoel.png';
+    var antipapanoelImg = new Image();
+    antipapanoelImg.src = 'img/antipapanoel.png';
+    var explosionImg = new Image();
+    explosionImg.src = 'img/explosion-sprite.png';
+
 
     // 0 = road
     // 1 = house1
@@ -46,64 +51,102 @@ if (!canvas) {
     var city_x = 30;
     var city_y = 30;
     var city = generateCityMap(city_x, city_y);
-    var sprMgr = new spriteMgr({canvas: canvas, world_x: city_x*grid_w, world_y: city_y*grid_h});
+    var sprMgr = new spriteMgr({canvas: canvas, world_x: city_x * grid_w, world_y: city_y * grid_h});
     generateCitySprites(sprMgr, city);
     var papaSprite = sprMgr.addSprite({width: grid_size,
-                    height: grid_size,
-                    x: 0,
-                    y: 0,
-                    z: 1,
-                    image: papanoel,
-                    duration: -1,
-                    numberOfFrames: 1});
+        height: grid_size,
+        x: 0,
+        y: 0,
+        z: 1,
+        image: papanoelImg,
+        duration: -1,
+        numberOfFrames: 1});
+
+    var addExplosion = function(daX, daY) {
+        sprMgr.addSprite({width: 130,
+            height: 130,
+            x: daX,
+            y: daY,
+            z: 2,
+            image: explosionImg,
+            duration: 0,
+            numberOfFrames: 24});
+    };
 
     var camera_x_goal = 0;
     var camera_y_goal = 0;
 
-
+    var timeSinceLastUpdate = new Date().getTime();
+    var fps = 60;
+    var timePosition = 0;
+    var timePeriod = 2;
+    var timeDirection = 1;
+    var papaNoelShadowList = [];
+    var tempPositions = [{x:0,y:0}];
     var update_screen = function() {
-        
-        sprMgr.camera_x = sprMgr.camera_x + .1 * (camera_x_goal - sprMgr.camera_x);
-        sprMgr.camera_y = sprMgr.camera_y + .1 * (camera_y_goal - sprMgr.camera_y);
+        //update
+        sprMgr.camera_x += .3 * (camera_x_goal - sprMgr.camera_x);
+        sprMgr.camera_y += .3 * (camera_y_goal - sprMgr.camera_y);
         papaSprite.x = sprMgr.camera_x;
         papaSprite.y = sprMgr.camera_y;
+        for(var i=0;i<papaNoelShadowList.length;i++)
+            papaNoelShadowList[i].update();
+        //draw
         sprMgr.draw();
-
-        window.setTimeout(update_screen, 1000./60);
-        // window.setTimeout(update_screen, 1000./20);
-    }
-    // init the screen update sequence ! :Â¬D
-    update_screen();
+        context.fillStyle = "green";
+        context.font = "bold 20px Arial";
+        context.fillText("FPS : " + Math.round((1000 / (new Date().getTime() - timeSinceLastUpdate))) + "/" + fps, 20, 20);
+        if (timeDirection > 0)
+            context.fillText(timePosition + " Forward time", 20, 40);
+        else
+            context.fillText(timePosition + " Reverse time", 20, 40);
+        //call next
+        timeSinceLastUpdate = new Date().getTime();
+        window.setTimeout(update_screen, 1000. / fps);
+    };
 
     var goal_set_to_null = function() {
         goal = "null";
-    }
+    };
 
+    var update_world_frequency = 600;
     var update_world = function() {
+        timePosition += timeDirection;
+        tempPositions.push({x:camera_x_goal,y:camera_y_goal});
+        for(var i=0;i<papaNoelShadowList.length;i++)
+            papaNoelShadowList[i].update_world();
+        if (timePosition === 0 || timePosition === timePeriod) {
+            //TIME DIRECTION CHANGE
+            timeDirection *= -1;
+            papaNoelShadowList.push(new papaNoelShadow(tempPositions,-1));
+            tempPositions = [{x:camera_x_goal,y:camera_y_goal}];
+        }
         // console.log("update_world");
-        if (goal == "right") {
+        if (goal === "right") {
             camera_x_goal += 64;
         }
-        else if (goal == "left") {
+        else if (goal === "left") {
             camera_x_goal -= 64;
         }
-        else if (goal == "up") {
+        else if (goal === "up") {
             camera_y_goal -= 64;
         }
-        else if (goal == "down") {
+        else if (goal === "down") {
             camera_y_goal += 64;
         }
-        window.setTimeout(goal_set_to_null, 100);
+        window.setTimeout(goal_set_to_null, 0);
         // console.log("prout");
-        window.setTimeout(update_world, 700);
-
-    }
-    window.setTimeout(update_world, 700);
+        window.setTimeout(update_world, update_world_frequency);
+    };
+    window.setTimeout(update_world, update_world_frequency);
 
 
     document.addEventListener('keydown', function(evt) {
         key_event_fx(evt, true);
     });
+
+    // init the screen update sequence ! :Â¬D
+    update_screen();
 
     // document.addEventListener('keyup', function (evt) {
     // 	piano_key_event_fx(evt,false);

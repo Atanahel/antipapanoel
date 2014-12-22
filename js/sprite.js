@@ -8,15 +8,13 @@ function spriteMgr(options) {
     this.spriteCount = 0;
     this.world_x = options.world_x;
     this.world_y = options.world_y;
-
     var id = 0;
-
     this.containsSprite = function(s)
     {
         return this.spriteSet.hasOwnProperty(s.toString());
     };
     this.addSprite = function(options) {
-        var s = new sprite(options, id);
+        var s = new sprite(options, id,this);
         if (this.containsSprite(s))
             console.log('sprite already existing ARGH!');
         this.spriteSet[s.toString()] = s;
@@ -38,31 +36,43 @@ function spriteMgr(options) {
         //
         //console.log("nb sprites :" + this.spriteCount)
         var t;
+        var array = [];
         for (t in this.spriteSet) {
-            this.spriteSet[t].update();
-            this.spriteSet[t].render(this.context, view_x / 2 - this.camera_x, view_y / 2 - this.camera_y, this.world_x, this.world_y);
+            var s = this.spriteSet[t];
+            s.update();
+            if (Math.abs(modulo(view_x / 2 - this.camera_x + s.x + s.width / 2, this.world_x) - view_x / 2) <= view_x * 0.75) {
+                if (Math.abs(modulo(view_y / 2 - this.camera_y + s.y + s.height / 2, this.world_y) - view_y / 2) <= view_y * 0.75) {
+                    array.push(s);
+                }
+            }
+        }
+        array.sort(function(a, b) {
+            return a.z - b.z;
+        });
+        for (var i = 0; i < array.length; i++) {
+            array[i].render(this.context, view_x / 2 - this.camera_x, view_y / 2 - this.camera_y, this.world_x, this.world_y);
         }
     };
 }
 
 
-function sprite(options, id) {
+function sprite(options, id, sprMgr) {
 
     var frameIndex = 0,
             tickCount = 0,
             ticksPerFrame = 5,
             numberOfFrames = options.numberOfFrames || 1,
             finished = false;
-
     this.width = options.width;
     this.height = options.height;
     this.image = options.image;
-    this.duration = options.duration;//-1 for looping, 0 for one period animation, value in milliseconds otherwise (unsupported)
+    this.duration = options.duration; //-1 for looping, 0 for one period animation, value in milliseconds otherwise (unsupported)
     this.x = options.x;
     this.y = options.y;
+    this.z = options.z;
     this.tickPerTime = 1;
-    var my_id = "" + id;
-
+    var my_id = "" + options.z + "." + id;
+    var my_sprMgr = sprMgr;
     this.render = function(context, offset_x, offset_y, world_x, world_y) {
         // Draw the animation
         context.drawImage(
@@ -76,7 +86,6 @@ function sprite(options, id) {
                 this.width,
                 this.height);
     };
-
     this.update = function() {
         tickCount += this.tickPerTime;
         if (tickCount >= ticksPerFrame) {
@@ -89,6 +98,7 @@ function sprite(options, id) {
                 frameIndex = 0;
             } else {
                 finished = true;
+                my_sprMgr.removeSprite(this);
             }
         }
         if (tickCount < 0) {
@@ -101,6 +111,7 @@ function sprite(options, id) {
                 frameIndex = numberOfFrames - 1;
             } else {
                 finished = true;
+                my_sprMgr.removeSprite(this);
             }
         }
     };

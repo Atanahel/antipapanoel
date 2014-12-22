@@ -96,10 +96,10 @@ function generateCitySprites(sprMgr, cityMap) {
             if (city[ii][jj]) {
                 sprMgr.addSprite({
                     width: grid_size,
-                    height: grid_size,
+                    height: grid_size+16,
                     x: ii * grid_size,
-                    y: jj * grid_size,
-                    z: 0,
+                    y: jj * grid_size-8,
+                    z: (jj+1)/(2*cityMap[0].length),
                     image: house,
                     duration: -1,
                     numberOfFrames: 1
