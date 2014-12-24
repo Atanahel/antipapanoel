@@ -36,7 +36,7 @@ function spriteMgr(options) {
 	};
 	this.draw = function() {
 		//clear canvas
-		this.canvas.width = this.canvas.width;
+		// this.canvas.width = this.canvas.width;
 		var view_x = this.canvas.width;
 		var view_y = this.canvas.height;
 		//
@@ -60,7 +60,6 @@ function spriteMgr(options) {
 		}
 	};
 }
-
 
 function sprite(options, id, sprMgr) {
 

@@ -8,6 +8,11 @@ house_dance.src = 'img/home_dance_new.png';
 var house_dance_cadeau = new Image();
 house_dance_cadeau.src = 'img/home_dance_new_cadeau2.png';
 
+var antihouse_dance = new Image();
+antihouse_dance.src = 'img/antihome_dance_new.png';
+var antihouse_dance_cadeau = new Image();
+antihouse_dance_cadeau.src = 'img/antihome_dance_new_cadeau2.png';
+
 var wall = new Image();
 wall.src = 'img/papanoel_wall.png';
 
@@ -45,6 +50,7 @@ var road_alone = new Image();
 road_alone.src = 'img/road_alone_big.png';
 
 var city_sprite_array;
+var house_count=0;
 function generateCityMap(city_x, city_y) {
 	city_sprite_array = new Array(city_x);
 	for (var i = 0; i < city_x; i++) {
@@ -60,7 +66,12 @@ function generateCityMap(city_x, city_y) {
 				if (.13 < Math.random()) {
 					//chance to be a wall
 					if(Math.random()<.6){
-						city[i][j] = 1;
+						// if(Math.random()<.5){
+							city[i][j] = 1;
+							house_count++;
+						// }else{
+						// 	city[i][j] = 3;
+						// }
 					}else{
 						city[i][j] = 2;
 					}
@@ -72,7 +83,12 @@ function generateCityMap(city_x, city_y) {
 				if (.8 < Math.random()) {
 					//chance to be a wall
 					if(Math.random()<.6){
-						city[i][j] = 1;
+						// if(Math.random()<.5){
+							city[i][j] = 1;
+							house_count++;
+						// }else{
+						// 	city[i][j] = 3;
+						// }
 					}else{
 						city[i][j] = 2;
 					}
@@ -98,21 +114,50 @@ function generateCityMap(city_x, city_y) {
 			// 	city[i][j]=1;
 			// }
 			if (right === 0 && up === 0 && right_up === 0) {
-				city[i][j] = 1;
+				if(Math.random()<.6){
+					if(city[i][j] != 1){
+						house_count++;
+					}
+					city[i][j] = 1;
+				}else{
+					city[i][j] = 2;
+				}
 			}
 			if (right === 0 && down === 0 && right_down === 0) {
-				city[i][j] = 1;
+				if(Math.random()<.6){
+					if(city[i][j] != 1){
+						house_count++;
+					}
+					city[i][j] = 1;
+				}else{
+					city[i][j] = 2;
+				}
 			}
 			if (left === 0 && up === 0 && left_up === 0) {
-				city[i][j] = 1;
+				if(Math.random()<.6){
+					if(city[i][j] != 1){
+						house_count++;
+					}
+					city[i][j] = 1;
+				}else{
+					city[i][j] = 2;
+				}
 			}
 			if (left === 0 && down === 0 && left_down === 0) {
-				city[i][j] = 1;
+				if(Math.random()<.6){
+					if(city[i][j] != 1){
+						house_count++;
+					}
+					city[i][j] = 1;
+				}else{
+					city[i][j] = 2;
+				}
 			}
 
 		}
 	}
 
+	house_count=Math.floor(house_count*1.2);
 	//0 0 is always a road
 	city[0][0]=0;
 	return city;
@@ -129,8 +174,8 @@ function generateCitySprites(sprMgr, cityMap) {
 					height: grid_size+16,
 					x: ii * grid_size,
 					y: jj * grid_size-8,
-					// z: jj * grid_size-8,
-					z: (jj+1)/(2*cityMap[0].length),
+					z: jj * grid_size+1,
+					// z: (jj+1)/(2*cityMap[0].length),
 					image: house_dance,
 					duration: -1,
 					numberOfFrames: 17,
@@ -148,21 +193,55 @@ function generateCitySprites(sprMgr, cityMap) {
 					height: grid_size,
 					x: ii * grid_size,
 					y: jj * grid_size,
-					// z: jj * grid_size-.5,
-					z: (jj+1)/(2*cityMap[0].length)-.5,
+					z: jj * grid_size-1,
+					// z: (jj)/(2*cityMap[0].length),
 					image: house_bg,
 					duration: -1,
 					numberOfFrames: 1
 				});
 
+			} else if(city[ii][jj]==3){
+				var tmp_sprite = sprMgr.addSprite({
+					width: grid_size,
+					height: grid_size+16,
+					x: ii * grid_size,
+					y: jj * grid_size-8,
+					z: jj * grid_size+1,
+					// z: (jj+1)/(2*cityMap[0].length),
+					image: antihouse_dance,
+					duration: -1,
+					numberOfFrames: 17,
+					period: 2
+				});
+				// console.log(tmp_sprite)
+				// tmp_sprite.duration=0,
+				tmp_sprite.frameIndex=7;
+				city_sprite_array[ii][jj]=tmp_sprite;
+				// if(Math.random()<.5){
+				// }
+
+				sprMgr.addSprite({
+					width: grid_size,
+					height: grid_size,
+					x: ii * grid_size,
+					y: jj * grid_size,
+					z: jj * grid_size-1,
+					// z: (jj)/(2*cityMap[0].length),
+					image: house_bg,
+					duration: -1,
+					numberOfFrames: 1
+				});
+
+
+
 			} else if(city[ii][jj]==2){
 				sprMgr.addSprite({
 					width: grid_size,
-					height: grid_size+32,
+					height: grid_size+64,
 					x: ii * grid_size,
-					y: jj * grid_size-16,
-					// z: jj * grid_size-16,
-					z: (jj+1)/(2*cityMap[0].length)+.0001,
+					y: jj * grid_size-32,
+					z: jj * grid_size-32,
+					// z: (jj+.5)/(2*cityMap[0].length),
 					image: wall,
 					duration: -1,
 					numberOfFrames: 1
