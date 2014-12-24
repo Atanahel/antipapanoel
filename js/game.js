@@ -35,23 +35,23 @@ if (!canvas) {
 	// !! LOADING SHIT !!
 	// !!!!!!!!!!!!!!!!!!
 
-	var papanoelImg = new Image();
-	papanoelImg.src = 'img/papanoel_anim.png';
-	var papanoelImgMirror = new Image();
-	papanoelImgMirror.src = 'img/papanoel_mirror.png';
-
-	var antipapanoelImg = new Image();
-	antipapanoelImg.src = 'img/antipapanoel_anim3.png';
-	var antipapanoelImgMirror = new Image();
-	antipapanoelImgMirror.src = 'img/antipapanoel_anim3Mirror.png';
-	var explosionImg = new Image();
-	explosionImg.src = 'img/explosion-sprite.png';
-
-	var explosionNoelImg = new Image();
-	// explosionNoelImg.src = 'img/explosion-sprite.png';
-	// explosionNoelImg.src = 'img/explosion_noel_color.png';
-	explosionNoelImg.src = 'img/explosion_noel2.png';
-	// explosionNoelImg.src = 'img/papanoel_fusion2.png';
+	// var papanoelImg = new Image();
+	// papanoelImg.src = 'img/papanoel_anim.png';
+	// var papanoelImgMirror = new Image();
+	// papanoelImgMirror.src = 'img/papanoel_mirror.png';
+	// 
+	// var antipapanoelImg = new Image();
+	// antipapanoelImg.src = 'img/antipapanoel_anim3.png';
+	// var antipapanoelImgMirror = new Image();
+	// antipapanoelImgMirror.src = 'img/antipapanoel_anim3Mirror.png';
+	// var explosionImg = new Image();
+	// explosionImg.src = 'img/explosion-sprite.png';
+	// 
+	// var explosionNoelImg = new Image();
+	// // explosionNoelImg.src = 'img/explosion-sprite.png';
+	// // explosionNoelImg.src = 'img/explosion_noel_color.png';
+	// explosionNoelImg.src = 'img/explosion_noel2.png';
+	// // explosionNoelImg.src = 'img/papanoel_fusion2.png';
 
 
 	// 0 = road
@@ -309,7 +309,6 @@ if (!canvas) {
 
 		return undefined;
 	}
-
 	var update_world = function() {
 		timeBeginPeriod = new Date().getTime();
 		loop_count++;
@@ -387,7 +386,8 @@ if (!canvas) {
 
 
 
-			if (goal === "right") {
+			// if (goal === "right") {
+			if (right_key_state) {
 				papaSprite.image=papanoelImg;
 				var ii =Math.floor(modulo(camera_x_goal/grid_w+1,city_x)); 
 				var jj =Math.floor(modulo(camera_y_goal/grid_h,city_y)); 
@@ -395,7 +395,8 @@ if (!canvas) {
 					camera_x_goal += grid_w;
 				}
 			}
-			else if (goal === "left") {
+			// else if (goal === "left") {
+			else if (left_key_state) {
 				papaSprite.image=papanoelImgMirror;
 				var ii =Math.floor(modulo(camera_x_goal/grid_w-1,city_x)); 
 				var jj =Math.floor(modulo(camera_y_goal/grid_h,city_y)); 
@@ -403,14 +404,16 @@ if (!canvas) {
 					camera_x_goal -= grid_w;
 				}
 			}
-			else if (goal === "up") {
+			// else if (goal === "up") {
+			else if (up_key_state) {
 				var ii =Math.floor(modulo(camera_x_goal/grid_w,city_x)); 
 				var jj =Math.floor(modulo(camera_y_goal/grid_h-1,city_y)); 
 				if(city[ii][jj]!=2){
 					camera_y_goal -= grid_h;
 				}
 			}
-			else if (goal === "down") {
+			// else if (goal === "down") {
+			else if (down_key_state) {
 				var ii =Math.floor(modulo(camera_x_goal/grid_w,city_x)); 
 				var jj =Math.floor(modulo(camera_y_goal/grid_h+1,city_y)); 
 				if(city[ii][jj]!=2){
@@ -445,7 +448,9 @@ if (!canvas) {
 			}
 			//eviter les mouvements pas controlles
 			// genre aller deux fois a droite aulieu d'une fois
-			window.setTimeout(goal_set_to_null, 50);
+			// window.setTimeout(goal_set_to_null, 50);
+			// ouai ben en fait non
+			//	window.setTimeout(goal_set_to_null, 0);
 		}
 		window.setTimeout(update_world, update_world_frequency);
 	};
@@ -466,34 +471,60 @@ if (!canvas) {
 	update_screen();
 
 
-	// document.addEventListener('keyup', function (evt) {
-	// 	piano_key_event_fx(evt,false);
-	// 	draw_piano();
-	// });
+	document.addEventListener('keyup', function (evt) {
+		//goal = "null"
+		if (evt.keyCode === KEY_MAP['right']) {
+			right_key_state=0;
+		}
+		else if (evt.keyCode === KEY_MAP['left']) {
+			left_key_state=0;
+		}
+		if (evt.keyCode === KEY_MAP['up']) {
+			up_key_state=0;
+		}
+		else if (evt.keyCode === KEY_MAP['down']) {
+			down_key_state=0;
+		}
+	});
 
 }
 
+var right_key_state=0;
+var left_key_state=0;
+var up_key_state=0;
+var down_key_state=0;
+
 ////////////////////////////////////////////////////////////////////
 function key_event_fx(evt, mybool) {
+	if([32, 37, 38, 39, 40].indexOf(evt.keyCode) > -1) {
+        evt.preventDefault();
+    }
 	if (evt.keyCode === KEY_MAP['right']) {
-		goal = "right"
+		//goal = "right"
+		right_key_state=1;
 		return 1;
 		// camera_x-=8;
 	}
 	else if (evt.keyCode === KEY_MAP['left']) {
-		goal = "left"
+		//goal = "left"
+		left_key_state=1;
 		return 1;
 		// camera_x+=8;
 	}
 	if (evt.keyCode === KEY_MAP['up']) {
-		goal = "up"
+		//goal = "up"
+		up_key_state=1;
 		return 1;
 		// camera_y+=8;
 	}
 	else if (evt.keyCode === KEY_MAP['down']) {
-		goal = "down"
+		//goal = "down"
+		down_key_state=1;
 		return 1;
 		// camera_y-=8;
 	}
 	return 0;
 }
+
+
+
